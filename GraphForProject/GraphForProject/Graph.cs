@@ -486,11 +486,11 @@ namespace RightGraph
 
             for (int i = 0; i < n; ++i)
             {
+                int v = Edge[i];
                 int j = 0;
-                foreach (int v in Edge)
-                {
-                    foreach (var v1 in theGraph[i])
+                    foreach (var v1 in theGraph[v])
                     {
+
                         if (v1.Key == v)
                         {
                             a[i][j] = v1.Value;
@@ -500,7 +500,7 @@ namespace RightGraph
                         {
                             a[i][j] = 0;
                         }
-                    }
+                    
                     j += 1;
                 }
             }
@@ -582,24 +582,27 @@ namespace RightGraph
                 bool newComp = false;
 
                 //ищем компоненты связности
-                foreach (int vertexForCheck in usedV)
-                {
-                    foreach (var v in theGraph[vertexForCheck])
+                for (int j = 0; j < theGraph.Count; ++j) {
+                    if (notUsedV.Count < j)
                     {
-                        //если проходимся по вершине, заносим в использованные, удаляем из неиспользованных
-                        if (!usedV.Any(d => d == v.Key))
+                        foreach (var v in theGraph[notUsedV[j]])
                         {
-                            usedV.Add(v.Key);
-                            notUsedV.Remove(v.Key);
+                            //если проходимся по вершине, заносим в использованные, удаляем из неиспользованных
+                            if (!usedV.Any(d => d == v.Key))
+                            {
+                                usedV.Add(v.Key);
+                                notUsedV.Remove(v.Key);
+                            }
+                            else
+                            {
+                                newComp = true;
+                            }
                         }
-                        else
+
+                        if (newComp)
                         {
-                            newComp = true;
+                            result += 1;
                         }
-                    }
-                    if (newComp)
-                    {
-                        result += 1;
                     }
                 }
 
@@ -609,7 +612,7 @@ namespace RightGraph
 
         //Цикломатическое число
         //находится как разница суммы числа компонент связности и числа ребер с числом чершин
-        public int AcyclomaticNumber()
+        public int CyclomaticNumber()
         {
             int r = NumberOfConnectedComponents();
             //матрица смежности
@@ -625,19 +628,6 @@ namespace RightGraph
 
             return r + sumOfEdges - theGraph.Count;
         }
-
-        //?????????хроматическое число?????????
-
-        ////вектор степеней 2 порядка - отсортированный словарь для упрощенного поиска
-        //public Dictionary<int, Dictionary<int, int>> SortedGraph()
-        //{
-        //    Dictionary<int, Dictionary<int, int>> result = (Dictionary<int, Dictionary<int, int>>)theGraph.OrderBy(k => k.Key);
-        //    foreach (var vert in theGraph)
-        //    {
-        //        result[vert.Key] = (Dictionary<int, int>)vert.Value.OrderBy(k => k.Key);
-        //    }
-        //    return result;
-        //}
         #endregion
 
         #region Second Evristic
@@ -646,7 +636,7 @@ namespace RightGraph
         public string ToBin(long x)
         {
             string s3 = "";
-            int x2 = x;
+            long x2 = x;
             while (x2 > 0)
             {
                 s3 = x2 % 2 + s3;
