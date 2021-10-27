@@ -174,11 +174,7 @@ namespace RightGraph
         {
             Edge.Clear();
             foreach (var key in theGraph)
-                foreach (var v in key.Value)
-                {
-                    Edge.Add(key.Key);
-                    Edge.Add(v.Key);
-                }
+                Edge.Add(key.Key);
         }
 
         //Красивый вывод
@@ -380,64 +376,43 @@ namespace RightGraph
         public int VinerIndex()
         {
             int resultSum = 0;
-            foreach (var v in theGraph)
+            int[][] res = Floyd();
+            for (int i = 0; i < res[0].Length; ++i)
             {
-                if (theGraph.Keys.Any(v1 => v1 == v.Key))
+                for (int j = 0; j < res[0].Length; ++j)
                 {
-                    Console.WriteLine("Данная вершина {0} является искомой", v.Key);
-                }
-                else
-                {
-                    foreach (var v1 in theGraph)
+                    if (res[i][j] != int.MaxValue)
                     {
-                        if (v1.Key != v.Key)
-                        {
-                            int result = GetShortest(v.Key, v1.Key, theGraph.Count);
-
-                            resultSum += result;
-                        }
+                        resultSum += res[i][j];
                     }
                 }
             }
             return resultSum;
         }
 
-        public int GetShortest(int start, int end, int triesCount)
+        public int[][] Floyd()
         {
-            List<List<int>> routes = new List<List<int>>();
-            foreach (var v in theGraph[start])
+            int i, j, k;
+            //создаем массив а
+            int size = Edge.Count;
+            int[][] a = Matrix();
+
+            for (k = 0; k < size; k++)
             {
-                routes.Add(new List<int> { start, v.Key });
-            }
-
-            int stepCount = 1;
-
-            while (true)
-            {
-                if (stepCount >= triesCount)
+                for (i = 0; i < size; i++)
                 {
-                    return 0;
-                }
-
-                var foundRoute = routes.FirstOrDefault(r => r.Any(v => v == end));
-                if (foundRoute != null)
-                {
-                    return foundRoute.Count;
-                }
-
-                var newRoutes = new List<List<int>>();
-                foreach (var route in routes)
-                {
-                    foreach (var nextVertex in theGraph[route.Last()])
+                    for (j = 0; j < size; j++)
                     {
-                        var newRoute = new List<int>(route);
-                        newRoute.Add(nextVertex.Key);
-                        newRoutes.Add(newRoute);
+                        long distance = (long)a[i][k] + (long)a[k][j];
+                        if ((long)a[i][j] > distance)
+                        {
+                            a[i][j] = (int)distance;
+                        }
                     }
                 }
-                routes = newRoutes;
-                stepCount++;
             }
+
+            return a;//в качестве результата возвращаем массив кратчайших путей между
         }
 
         //Индекс Рандича
@@ -476,7 +451,6 @@ namespace RightGraph
         //matrix
         public int[][] Matrix()
         {
-
             int n = theGraph.Count;
             int[][] a = new int[n][];
             for (int i = 0; i < n; ++i)
@@ -486,77 +460,25 @@ namespace RightGraph
 
             for (int i = 0; i < n; ++i)
             {
-                int v = Edge[i];
-                int j = 0;
-                    foreach (var v1 in theGraph[v])
+                for (int j = 0; j < n; ++j)
+                {
+                    if (theGraph[Edge[i]].ContainsKey(Edge[j]))
                     {
-
-                        if (v1.Key == v)
-                        {
-                            a[i][j] = v1.Value;
-                        }
-
-                        else
-                        {
-                            a[i][j] = 0;
-                        }
-                    
-                    j += 1;
+                        a[i][j] = theGraph[Edge[i]][Edge[j]];
+                    }
+                    else if (i != j)
+                    {
+                        a[i][j] = int.MaxValue;
+                    }
+                    else
+                    {
+                        a[i][j] = 0;
+                    }
                 }
             }
             return a;
         }
 
-        //determinant
-        public int FindDeter()
-        {
-            int det = 1;
-            const double EPS = 1E-9;
-            int n = theGraph.Count;
-            int[][] a = Matrix();
-            int[][] b = new int[n][];
-            //проходим по строкам
-            for (int i = 0; i < n; ++i)
-            {
-                //присваиваем k номер строки
-                int k = i;
-                //идем по строке от i+1 до конца
-                for (int j = i + 1; j < n; ++j)
-                    //проверяем
-                    if (Math.Abs(a[j][i]) > Math.Abs(a[k][i]))
-                        //если равенство выполняется то k присваиваем j
-                        k = j;
-                //если равенство выполняется то определитель приравниваем 0 и выходим из программы
-                if (Math.Abs(a[k][i]) < EPS)
-                {
-                    det = 0;
-                    break;
-                }
-                //меняем местами a[i] и a[k]
-                b[0] = a[i];
-                a[i] = a[k];
-                a[k] = b[0];
-                //если i не равно k
-                if (i != k)
-                    //то меняем знак определителя
-                    det = -det;
-                //умножаем det на элемент a[i][i]
-                det *= a[i][i];
-                //идем по строке от i+1 до конца
-                for (int j = i + 1; j < n; ++j)
-                    //каждый элемент делим на a[i][i]
-                    a[i][j] /= a[i][i];
-                //идем по столбцам
-                for (int j = 0; j < n; ++j)
-                    //проверяем
-                    if ((j != i) && (Math.Abs(a[j][i]) > EPS))
-                        //если да, то идем по k от i+1
-                        for (k = i + 1; k < n; ++k)
-                            a[j][k] -= a[i][k] * a[j][i];
-            }
-
-            return det;
-        }
 
 
         //число компонент связности графа
@@ -582,7 +504,8 @@ namespace RightGraph
                 bool newComp = false;
 
                 //ищем компоненты связности
-                for (int j = 0; j < theGraph.Count; ++j) {
+                for (int j = 0; j < theGraph.Count; ++j)
+                {
                     if (notUsedV.Count < j)
                     {
                         foreach (var v in theGraph[notUsedV[j]])
@@ -621,7 +544,13 @@ namespace RightGraph
             int sumOfEdges = 0;
             foreach (var ch in a)
             {
-                sumOfEdges += 1;
+                foreach (var val in ch)
+                {
+                    if (val != 0 && val != int.MaxValue)
+                    {
+                        sumOfEdges += 1;
+                    }
+                }
             }
 
             sumOfEdges /= 2;
@@ -652,10 +581,12 @@ namespace RightGraph
         {
             var list = new List<List<int>>();
             //передаем список чисел, start - номер вставляемого элемента в очередную вариацию, end определяет количество чисел в перестановке, list - список вариаций 
-            return DoPermute(nums, 0, nums.Length - 1, list);
+            DoPermute(nums, 0, nums.Length - 1, ref list);
+            return list;
         }
 
-        static List<List<int>> DoPermute(int[] nums, int start, int end, List<List<int>> list)
+
+        static void DoPermute(int[] nums, int start, int end, ref List<List<int>> list)
         {
             if (start == end)
             {
@@ -664,16 +595,15 @@ namespace RightGraph
             }
             else
             {
-                for (var i = start; i <= end; i++)
+                for (var i = start; i <= end; ++i)
                 {
                     //составляем n! перестановок за счет попарной замены чисел, получаем рекурсивный алгоритм получения списка перестановок
                     Swap(ref nums[start], ref nums[i]);
-                    DoPermute(nums, start + 1, end, list);
+                    DoPermute(nums, start + 1, end, ref list);
                     Swap(ref nums[start], ref nums[i]);
                 }
             }
 
-            return list;
         }
 
         static void Swap(ref int a, ref int b)
@@ -682,12 +612,11 @@ namespace RightGraph
             a = b;
             b = temp;
         }
-
-
         //мини-код графа - минимальное двоичное значение выражения, вычисляемого за счет перестановки элементов
         public long MiniCode()
         {
             //для каждой комбинации найти значение выражения и найти минимальное среди них
+
             List<List<int>> permutations = Permute(Edge.ToArray());
 
             long min = long.MaxValue;
@@ -701,7 +630,7 @@ namespace RightGraph
 
                 for (int i = 1; i < matr[0].Length; i++)
                 {
-                    for (int j = i; i > j; j++)
+                    for (int j = 0; i > j; j++)
                     {
                         values.Add(matr[j][i]);
                     }
@@ -711,7 +640,8 @@ namespace RightGraph
                 int k = 1;
                 foreach (var v in values)
                 {
-                    resultValue += v * k;
+                    if (v != int.MaxValue)
+                        resultValue += v * k;
                     k *= 2;
                 }
 
@@ -740,7 +670,7 @@ namespace RightGraph
 
                 for (int i = 1; i < matr[0].Length; i++)
                 {
-                    for (int j = i; i > j; j++)
+                    for (int j = 0; i > j; j++)
                     {
                         values.Add(matr[j][i]);
                     }
@@ -750,7 +680,8 @@ namespace RightGraph
                 int k = 1;
                 foreach (var v in values)
                 {
-                    resultValue += v * k;
+                    if (v != int.MaxValue)
+                        resultValue += v * k;
                     k *= 2;
                 }
 
