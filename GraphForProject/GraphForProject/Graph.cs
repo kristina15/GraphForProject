@@ -375,7 +375,7 @@ namespace RightGraph
             }
         }
 
-
+        #region First Evristic
         //найти кратчайшее расстояние между вершинами, их сумма - Индекс Винера
         public int VinerIndex()
         {
@@ -638,7 +638,33 @@ namespace RightGraph
         //    }
         //    return result;
         //}
+        #endregion
 
+        #region Second Evristic
 
+        //перевод числа в двоичную систему
+        public string ToBin(int x)
+        {
+            string s3 = "";
+            int x2 = x;
+            while (x2 > 0)
+            {
+                s3 = x2 % 2 + s3;
+                x2 /= 2;
+            }
+            if (s3 == "")
+                s3 = "0";
+
+            return s3;
+        }
+
+        //мини-код графа
+        public string MiniCode()
+        {
+            int[][] a = Matrix();
+            //выписать элементы выше главной диагонали, т.к. матрица симметрична
+            
+        }
+        #endregion
     }
 }
