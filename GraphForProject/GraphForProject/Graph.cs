@@ -643,7 +643,7 @@ namespace RightGraph
         #region Second Evristic
 
         //перевод числа в двоичную систему
-        public string ToBin(int x)
+        public string ToBin(long x)
         {
             string s3 = "";
             int x2 = x;
@@ -658,13 +658,119 @@ namespace RightGraph
             return s3;
         }
 
-        //мини-код графа
-        public string MiniCode()
+        static List<List<int>> Permute(int[] nums)
         {
-            int[][] a = Matrix();
-            //выписать элементы выше главной диагонали, т.к. матрица симметрична
-            
+            var list = new List<List<int>>();
+            //передаем список чисел, start - номер вставляемого элемента в очередную вариацию, end определяет количество чисел в перестановке, list - список вариаций 
+            return DoPermute(nums, 0, nums.Length - 1, list);
         }
-        #endregion
+
+        static List<List<int>> DoPermute(int[] nums, int start, int end, List<List<int>> list)
+        {
+            if (start == end)
+            {
+                // мы получили один из n! вариантов перестановок
+                list.Add(new List<int>(nums));
+            }
+            else
+            {
+                for (var i = start; i <= end; i++)
+                {
+                    //составляем n! перестановок за счет попарной замены чисел, получаем рекурсивный алгоритм получения списка перестановок
+                    Swap(ref nums[start], ref nums[i]);
+                    DoPermute(nums, start + 1, end, list);
+                    Swap(ref nums[start], ref nums[i]);
+                }
+            }
+
+            return list;
+        }
+
+        static void Swap(ref int a, ref int b)
+        {
+            var temp = a;
+            a = b;
+            b = temp;
+        }
+
+
+        //мини-код графа - минимальное двоичное значение выражения, вычисляемого за счет перестановки элементов
+        public long MiniCode()
+        {
+            //для каждой комбинации найти значение выражения и найти минимальное среди них
+            List<List<int>> permutations = Permute(Edge.ToArray());
+
+            long min = long.MaxValue;
+
+            foreach (var p in permutations)
+            {
+                Edge = p;
+                int[][] matr = Matrix();
+
+                List<int> values = new List<int>();
+
+                for (int i = 1; i < matr[0].Length; i++)
+                {
+                    for (int j = i; i > j; j++)
+                    {
+                        values.Add(matr[j][i]);
+                    }
+                }
+
+                long resultValue = 0;
+                int k = 1;
+                foreach (var v in values)
+                {
+                    resultValue += v * k;
+                    k *= 2;
+                }
+
+                if (resultValue < min)
+                    min = resultValue;
+
+            }
+
+            return min;
+        }
+
+        //ищем макси-код матрицы смежности
+        public long MaxiCode()
+        {
+            //для каждой комбинации найти значение выражения и найти минимальное среди них
+            List<List<int>> permutations = Permute(Edge.ToArray());
+
+            long max = long.MinValue;
+
+            foreach (var p in permutations)
+            {
+                Edge = p;
+                int[][] matr = Matrix();
+
+                List<int> values = new List<int>();
+
+                for (int i = 1; i < matr[0].Length; i++)
+                {
+                    for (int j = i; i > j; j++)
+                    {
+                        values.Add(matr[j][i]);
+                    }
+                }
+
+                long resultValue = 0;
+                int k = 1;
+                foreach (var v in values)
+                {
+                    resultValue += v * k;
+                    k *= 2;
+                }
+
+                if (resultValue > max)
+                    max = resultValue;
+
+            }
+
+            return max;
+        }
     }
+    #endregion
 }
