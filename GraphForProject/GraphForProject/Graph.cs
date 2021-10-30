@@ -371,6 +371,106 @@ namespace RightGraph
             }
         }
 
+        #region Brute-Force Algorithm
+        public bool GetBruteForce(Graph g2)
+        {
+            int[][] matrix = Matrix();
+            if (!Compare(matrix, g2))
+            {
+                for (int i = 0; i < matrix.Length; i++)
+                {
+                    for (int j = 0; j < matrix.Length; j++)
+                    {
+                        if (i != j)
+                        {
+                            Swap(ref matrix[i], ref matrix[j]);
+                            if (Compare(matrix, g2))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            var rotateMatrix = RotatedMatrix(matrix);
+            if(!Compare(rotateMatrix, g2))
+            {
+                for (int i = 0; i < rotateMatrix.Length; i++)
+                {
+                    for (int j = 0; j < rotateMatrix.Length; j++)
+                    {
+                        if (i != j)
+                        {
+                            Swap(ref rotateMatrix[i], ref rotateMatrix[j]);
+                            if (Compare(rotateMatrix, g2))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private void Swap(ref int[] str1, ref int[] str2)
+        {
+            int[] temp = new int[str1.Length];
+            for (int i = 0; i < str1.Length; i++)
+            {
+                temp[i] = str1[i];
+            }
+
+            for (int i = 0; i < str1.Length; i++)
+            {
+                str1[i] = str2[i];
+            }
+
+            for (int i = 0; i < temp.Length; i++)
+            {
+                str2[i] = temp[i];
+            }
+        }
+
+        private bool Compare(int[][] matrix, Graph g2)
+        {
+            var matrix2 = g2.Matrix();
+            for (int i = 0; i < matrix.Length; i++)
+            {
+                for (int j = 0; j < matrix[i].Length; j++)
+                {
+                    if(matrix[i][j] != matrix2[i][j])
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private int[][] RotatedMatrix(int[][] matrix)
+        {
+            int[][] matrixCopy = new int[matrix.Length][];
+            for (int i = 0; i < matrix.Length; i++)
+            {
+                matrixCopy[i] = matrix[i];
+            }
+
+            for (int i = 0; i < matrix.Length; i++)
+            {
+                for (int j = 0; j < matrix[i].Length; j++)
+                {
+                    matrixCopy[i][j] = matrix[j][i];
+                }
+            }
+
+            return matrixCopy;
+        }
+        #endregion
+
         #region First Evristic
         //найти кратчайшее расстояние между вершинами, их сумма - Индекс Винера
         public int VinerIndex()
@@ -612,6 +712,7 @@ namespace RightGraph
             a = b;
             b = temp;
         }
+
         //мини-код графа - минимальное двоичное значение выражения, вычисляемого за счет перестановки элементов
         public long MiniCode()
         {

@@ -1,5 +1,6 @@
 ﻿using RightGraph;
 using System;
+using System.IO;
 
 namespace GraphForProject
 {
@@ -9,9 +10,13 @@ namespace GraphForProject
         {
             bool ves = true;
 
-            Graph g1 = new Graph("C:/Users/krisF/OneDrive/Документы/GitHub/GraphForProject/GraphForProject/GraphForProject/inputGraph1.txt", ves);
-            Graph g2 = new Graph("C:/Users/krisF/OneDrive/Документы/GitHub/GraphForProject/GraphForProject/GraphForProject/inputGraph2.txt", ves);
 
+            Graph g1 = new Graph(Directory.GetCurrentDirectory() + "\\inputGraph1.txt", ves);
+            Graph g2 = new Graph(Directory.GetCurrentDirectory() + "\\inputGraph2.txt", ves);
+
+            Console.WriteLine("Полный перебор: " + (g1.GetBruteForce(g2) ? "Ожидаем изоморфизм" : "Изоморфизма нет"));
+
+            Console.WriteLine();
             Console.WriteLine("1 Эвристический алгоритм: ");
             var g1VinerIndex = g1.VinerIndex();
             var g1RandicIndex = g1.RandicIndex();
@@ -20,7 +25,7 @@ namespace GraphForProject
 
             Console.WriteLine($"G1: \n{g1.ToStringGraph(true)} " +
                 $"\n Индекс Винера: {g1VinerIndex} " +
-                $"\n Индекс Рандича: {g1RandicIndex} " + 
+                $"\n Индекс Рандича: {g1RandicIndex} " +
                 $"\n Число компонент связности: {g1NumberConnectedComponents}" +
                 $"\n Цикломатическое число: {g1Cyclomatic} " +
                 $"\n");
