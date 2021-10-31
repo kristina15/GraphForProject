@@ -374,17 +374,17 @@ namespace RightGraph
         #region Brute-Force Algorithm
         public bool GetBruteForce(Graph g2)
         {
-            int[][] matrix = Matrix();
-            if (!Compare(matrix, g2))
+            int[][] matrix = Matrix();  //матрица смежности для исходного графа
+            if (!Compare(matrix, g2))   //если изначальное сравнение графов не даст изоморфизма
             {
-                for (int i = 0; i < matrix.Length; i++)
+                for (int i = 0; i < matrix.Length; i++)     //меняем местами строки исходной матрицы и сравниваем с матрицей смежности второго графа
                 {
                     for (int j = 0; j < matrix.Length; j++)
                     {
                         if (i != j)
                         {
                             Swap(ref matrix[i], ref matrix[j]);
-                            if (Compare(matrix, g2))
+                            if (Compare(matrix, g2))    //если перестановка даст изоморфизм, выходим из циклов
                             {
                                 return true;
                             }
@@ -393,7 +393,7 @@ namespace RightGraph
                 }
             }
 
-            var rotateMatrix = RotatedMatrix(matrix);
+            var rotateMatrix = RotatedMatrix(matrix);   //меняем местами строки и столбы (поворачиваем матрицу)
             if(!Compare(rotateMatrix, g2))
             {
                 for (int i = 0; i < rotateMatrix.Length; i++)
